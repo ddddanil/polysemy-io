@@ -59,6 +59,7 @@ library
       Polysemy.System.File
     , Polysemy.System.Handle
     , Polysemy.System.Environment
+    , Polysemy.System.Args
   other-modules:
   hs-source-dirs:     lib
   build-depends:
