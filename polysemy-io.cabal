@@ -1,6 +1,6 @@
 cabal-version: 2.2
 name:          polysemy-io
-version:       0.0
+version:       0.1
 
 common common-options
   default-language:   Haskell2010
@@ -80,4 +80,4 @@ test-suite lib
     , tasty-hunit
     , tasty-expected-failure
     , tasty-quickcheck
-    , polysemy-test
+    , polysemy-check
