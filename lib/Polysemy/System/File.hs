@@ -4,6 +4,7 @@ import Polysemy
 import System.IO
 import Prelude
 import Foreign.Ptr (Ptr)
+import Polysemy.System.Handle
 
 data (File id) :: Effect where
   FileSize :: File h m Integer
@@ -91,4 +92,7 @@ interpretFileHandle h = interpret $ \case
   SetEncoding e -> embed $ hSetEncoding h e
   GetEncoding -> embed $ hGetEncoding h
   SetNewlineMode m -> embed $ hSetNewlineMode h m
+
+data FileH (h :: Handle) :: Effect
+data FileS (s :: FilePath) :: Effect
 

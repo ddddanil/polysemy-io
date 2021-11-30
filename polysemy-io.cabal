@@ -56,7 +56,8 @@ common common-options
 library
   import:           common-options
   exposed-modules:
-    Polysemy.System.File
+      Polysemy.System.File
+    , Polysemy.System.Handle
   other-modules:
   hs-source-dirs:     lib
   build-depends:
