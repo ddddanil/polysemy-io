@@ -58,6 +58,7 @@ library
   exposed-modules:
       Polysemy.System.File
     , Polysemy.System.Handle
+    , Polysemy.System.Environment
   other-modules:
   hs-source-dirs:     lib
   build-depends:
