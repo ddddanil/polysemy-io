@@ -4,7 +4,7 @@ import Polysemy
 import System.IO
 import Prelude
 import GHC.TypeLits
-import Data.Singletons
+import Data.Proxy
 import Foreign.Ptr (Ptr)
 import Polysemy.System.Handle
 
@@ -52,8 +52,11 @@ data (File id) :: Effect where
 
 makeSem ''File
 
-interpretFile :: forall id r. Member (Embed IO) r => Handle -> InterpreterFor (File id) r
-interpretFile h = interpret $ \case
+runFile
+  :: forall id r. Member (Embed IO) r
+  => Handle
+  -> InterpreterFor (File id) r
+runFile h = interpret $ \case
   FileSize -> embed $ hFileSize h
   SetFileSize i -> embed $ hSetFileSize h i
   IsEOF -> embed $ hIsEOF h
@@ -95,13 +98,26 @@ interpretFile h = interpret $ \case
   GetEncoding -> embed $ hGetEncoding h
   SetNewlineMode m -> embed $ hSetNewlineMode h m
 
-interpretFileH :: forall h r. (KnownHandle h, Member (Embed IO) r) => InterpreterFor (File (h :: Handle)) r
-interpretFileH = let handle = handleVal (Proxy :: Proxy h)
-   in interpretFile handle
+runFileH
+  :: forall h r. (KnownHandle h, Member (Embed IO) r)
+  => InterpreterFor (File (h :: Handle)) r
+runFileH = let handle = handleVal (Proxy :: Proxy h)
+   in runFile handle
 
-interpretFileS :: forall s r. (KnownSymbol s, Member (Embed IO) r) => IOMode -> InterpreterFor (File (s :: Symbol)) r
-interpretFileS mode m0 = do
-  let path = symbolVal (Proxy :: Proxy s)
+runFileS
+  :: forall s r. (KnownSymbol s, Member (Embed IO) r)
+  => IOMode
+  -> InterpreterFor (File (s :: Symbol)) r
+runFileS = let
+  path = symbolVal (Proxy :: Proxy s)
+  in runFileWithPath path
+
+runFileWithPath
+  :: forall id r. Member (Embed IO) r
+  => FilePath
+  -> IOMode
+  -> InterpreterFor (File id) r
+runFileWithPath path mode m0 = do
   handle <- embed $ openFile path mode
-  interpretFile handle m0
+  runFile handle m0
 

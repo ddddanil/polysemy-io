@@ -4,13 +4,11 @@ module Polysemy.System.Handle (
 ) where
 
 import System.IO
--- import Data.Kind (Type)
--- import Prelude
-import Data.Singletons
+import Data.Proxy
 import GHC.Exts
 
 newtype SHandle (h :: Handle) = SHandle Handle
-type SStdin = SHandle stdin
+-- type SStdin = SHandle stdin
 
 class KnownHandle (h :: Handle) where
   handleSing :: SHandle h
