@@ -61,6 +61,7 @@ library
     , Polysemy.System.Environment
     , Polysemy.System.Args
     , Polysemy.System.Exit
+    , Polysemy.System.Timeout
   other-modules:
   hs-source-dirs:     lib
   build-depends:
