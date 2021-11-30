@@ -49,7 +49,7 @@ common common-options
       base
     , polysemy
     , polysemy-plugin
-    , singletons
+    -- , singletons
     -- , singletons-th
     -- , singletons-base
 
