@@ -32,4 +32,3 @@ runMemory = interpret $ \case
   EnableAllocationLimit -> embed M.enableAllocationLimit
   DisableAllocationLimit -> embed M.disableAllocationLimit
 
-

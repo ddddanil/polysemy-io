@@ -3,10 +3,12 @@ module Polysemy.System.Exit (
 , exitWith, exitSuccess, exitFailure, die
 , runExit
 , SE.ExitCode(..)
+, failToIO
 ) where
 
 import Prelude
 import Polysemy
+import Polysemy.Fail
 import qualified System.Exit as SE
 
 data Exit :: Effect where
@@ -25,4 +27,10 @@ runExit = interpret $ \case
   ExitSuccess -> embed SE.exitSuccess 
   ExitFailure -> embed SE.exitFailure 
   Die s -> embed $ SE.die s
+
+failToIO
+  :: Member (Embed IO) r
+  => InterpreterFor Fail r
+failToIO = interpret $ \case
+  Fail s -> embed $ SE.die s
 

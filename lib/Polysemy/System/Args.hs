@@ -20,7 +20,7 @@ runArgsInput
   :: Member (Embed IO) r
   => InterpreterFor ArgsInput r
 runArgsInput = interpret $ \case
-  Input -> embed getArgs 
+  Input -> embed getArgs
 
 runArgsReaderToFinal
   :: Member (Final IO) r
