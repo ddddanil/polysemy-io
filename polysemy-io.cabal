@@ -73,13 +73,16 @@ test-suite lib
   import:             common-options
   main-is:            Main.hs
   other-modules:
+    Suite.Timeout
   hs-source-dirs:     test
   type:               exitcode-stdio-1.0
   build-depends:
       polysemy-io
     -- Testing
     , tasty
-    , tasty-hunit
+    , tasty-hedgehog
     , tasty-expected-failure
     , tasty-quickcheck
+    , quickcheck-instances
     , polysemy-check
+    , polysemy-test
