@@ -1,8 +1,18 @@
+{-|
+Module: Polysemy.System.Memory
+Description: Garbage collector
+Copyright: (c) Danil Doroshin, 2021
+License: MIT
+Maintainer: ddddanil5555@gmail.com
+-}
 module Polysemy.System.Memory (
+-- * Effect
   Memory
+-- ** Actions
 , performMajorGC, performMinorGC
 , getAllocationCounter, setAllocationCounter
 , enableAllocationLimit, disableAllocationLimit
+-- ** Interpreters
 , runMemory
 ) where
 

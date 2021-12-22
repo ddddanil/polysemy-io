@@ -1,5 +1,16 @@
+{-|
+Module: Polysemy.System.Timeout
+Description: Timeout
+Copyright: (c) Danil Doroshin, 2021
+License: MIT
+Maintainer: ddddanil5555@gmail.com
+-}
 module Polysemy.System.Timeout (
-  Timeout, timeout
+-- * Effect
+  Timeout
+-- ** Actions
+, timeout
+-- ** Interpreters
 , runTimeoutToFinalIO
 ) where
 

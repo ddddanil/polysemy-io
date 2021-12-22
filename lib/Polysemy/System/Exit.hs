@@ -1,8 +1,19 @@
+{-|
+Module: Polysemy.System.Exit
+Description: Forced exit
+Copyright: (c) Danil Doroshin, 2021
+License: MIT
+Maintainer: ddddanil5555@gmail.com
+-}
 module Polysemy.System.Exit (
+-- * Effect
   Exit
-, exitWith, exitSuccess, exitFailure, die
-, runExit
 , SE.ExitCode(..)
+-- ** Actions
+, exitWith, exitSuccess, exitFailure, die
+-- ** Interpreters
+, runExit
+-- * Fail
 , failToIO
 ) where
 
@@ -24,8 +35,8 @@ runExit
   => InterpreterFor Exit r
 runExit = interpret $ \case
   ExitWith c -> embed $ SE.exitWith c
-  ExitSuccess -> embed SE.exitSuccess 
-  ExitFailure -> embed SE.exitFailure 
+  ExitSuccess -> embed SE.exitSuccess
+  ExitFailure -> embed SE.exitFailure
   Die s -> embed $ SE.die s
 
 failToIO
