@@ -1,6 +1,6 @@
 module Polysemy.System.Timeout (
   Timeout, timeout
-, runTimeoutToFinal
+, runTimeoutToFinalIO
 ) where
 
 import Prelude
@@ -14,10 +14,10 @@ data Timeout :: Effect where
 
 makeSem ''Timeout
 
-runTimeoutToFinal
+runTimeoutToFinalIO
   :: Member (Final IO) r
   => InterpreterFor Timeout r
-runTimeoutToFinal = interpretFinal $ \case
+runTimeoutToFinalIO = interpretFinal $ \case
   Timeout micros m -> do
     ins <- getInspectorS
     m' <- runS m

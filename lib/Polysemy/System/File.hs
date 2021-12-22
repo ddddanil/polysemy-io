@@ -1,6 +1,7 @@
 module Polysemy.System.File where
 
 import Polysemy
+import Polysemy.Tagged
 import System.IO
 import Prelude
 import GHC.TypeLits
@@ -8,54 +9,54 @@ import Data.Proxy
 import Foreign.Ptr (Ptr)
 import Polysemy.System.Handle
 
-data (File id) :: Effect where
-  FileSize :: File h m Integer
-  SetFileSize :: Integer -> File h m ()
-  IsEOF :: File h m Bool
-  SetBuffering :: BufferMode -> File h m ()
-  GetBuffering :: File h m BufferMode
-  Flush :: File h m ()
-  -- GetPosn :: File h m HandlePosn
-  -- SetPosn :: HandlePosn -> File h m ()
-  Seek :: SeekMode -> Integer -> File h m ()
-  Tell :: File h m Integer
-  IsOpen :: File h m Bool
-  IsClosed :: File h m Bool
-  IsReadable :: File h m Bool
-  IsWritable :: File h m Bool
-  IsSeekable :: File h m Bool
-  IsTerminalDevice :: File h m Bool
-  SetEcho :: Bool -> File h m ()
-  GetEcho :: File h m Bool
-  Show :: File h m String
-  WaitForInput :: Int -> File h m Bool
-  IsReady :: File h m Bool
-  GetChar :: File h m Char
-  GetLine :: File h m String
-  LookAhead :: File h m Char
-  GetContents :: File h m String
-  -- GetContents' :: File h m String
-  PutChar :: Char -> File h m ()
-  PutStr :: String -> File h m ()
-  PutStrLn :: String -> File h m ()
-  Print :: (Show a) => a -> File h m ()
-  ReadLn :: (Read a) => File h m a
-  SetBinaryMode :: Bool -> File h m ()
-  PutBuf :: Ptr a -> Int -> File h m ()
-  GetBuf :: Ptr a -> Int -> File h m Int
-  GetBufSome :: Ptr a -> Int -> File h m Int
-  PutBufNonBlocking :: Ptr a -> Int -> File h m Int
-  GetBufNonBlocking :: Ptr a -> Int -> File h m Int
-  SetEncoding :: TextEncoding -> File h m ()
-  GetEncoding :: File h m (Maybe TextEncoding)
-  SetNewlineMode :: NewlineMode -> File h m ()
+data File :: Effect where
+  FileSize :: File m Integer
+  SetFileSize :: Integer -> File m ()
+  IsEOF :: File m Bool
+  SetBuffering :: BufferMode -> File m ()
+  GetBuffering :: File m BufferMode
+  Flush :: File m ()
+  -- GetPosn :: File m HandlePosn
+  -- SetPosn :: HandlePosn -> File m ()
+  Seek :: SeekMode -> Integer -> File m ()
+  Tell :: File m Integer
+  IsOpen :: File m Bool
+  IsClosed :: File m Bool
+  IsReadable :: File m Bool
+  IsWritable :: File m Bool
+  IsSeekable :: File m Bool
+  IsTerminalDevice :: File m Bool
+  SetEcho :: Bool -> File m ()
+  GetEcho :: File m Bool
+  Show :: File m String
+  WaitForInput :: Int -> File m Bool
+  IsReady :: File m Bool
+  GetChar :: File m Char
+  GetLine :: File m String
+  LookAhead :: File m Char
+  GetContents :: File m String
+  -- GetContents' :: File m String
+  PutChar :: Char -> File m ()
+  PutStr :: String -> File m ()
+  PutStrLn :: String -> File m ()
+  Print :: (Show a) => a -> File m ()
+  ReadLn :: (Read a) => File m a
+  SetBinaryMode :: Bool -> File m ()
+  PutBuf :: Ptr a -> Int -> File m ()
+  GetBuf :: Ptr a -> Int -> File m Int
+  GetBufSome :: Ptr a -> Int -> File m Int
+  PutBufNonBlocking :: Ptr a -> Int -> File m Int
+  GetBufNonBlocking :: Ptr a -> Int -> File m Int
+  SetEncoding :: TextEncoding -> File m ()
+  GetEncoding :: File m (Maybe TextEncoding)
+  SetNewlineMode :: NewlineMode -> File m ()
 
 makeSem ''File
 
 runFile
-  :: forall id r. Member (Embed IO) r
+  :: Member (Embed IO) r
   => Handle
-  -> InterpreterFor (File id) r
+  -> InterpreterFor File r
 runFile h = interpret $ \case
   FileSize -> embed $ hFileSize h
   SetFileSize i -> embed $ hSetFileSize h i
@@ -100,23 +101,24 @@ runFile h = interpret $ \case
 
 runFileH
   :: forall h r. (KnownHandle h, Member (Embed IO) r)
-  => InterpreterFor (File (h :: Handle)) r
-runFileH = let handle = handleVal (Proxy :: Proxy h)
-   in runFile handle
+  => InterpreterFor (Tagged (h :: Handle) File) r
+runFileH = let
+  handle = handleVal (Proxy :: Proxy h)
+  in runFile handle . untag
 
 runFileS
   :: forall s r. (KnownSymbol s, Member (Embed IO) r)
   => IOMode
-  -> InterpreterFor (File (s :: Symbol)) r
-runFileS = let
+  -> InterpreterFor (Tagged (s :: Symbol) File) r
+runFileS mode = let
   path = symbolVal (Proxy :: Proxy s)
-  in runFileWithPath path
+  in runFileWithPath path mode . untag
 
 runFileWithPath
-  :: forall id r. Member (Embed IO) r
+  :: Member (Embed IO) r
   => FilePath
   -> IOMode
-  -> InterpreterFor (File id) r
+  -> InterpreterFor File r
 runFileWithPath path mode m0 = do
   handle <- embed $ openFile path mode
   runFile handle m0
