@@ -1,4 +1,4 @@
-module Polysemy.System.Handle (
+module Polysemy.IO.File.Handle (
   KnownHandle, handleVal
 , SomeHandle(..), someHandleVal
 ) where

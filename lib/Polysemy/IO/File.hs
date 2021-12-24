@@ -1,11 +1,11 @@
 {-|
-Module: Polysemy.System.File
+Module: Polysemy.IO.File
 Description: File operations
 Copyright: (c) Danil Doroshin, 2021
 License: MIT
 Maintainer: ddddanil5555@gmail.com
 -}
-module Polysemy.System.File (
+module Polysemy.IO.File (
 -- * Effect
   File
 -- ** Actions
@@ -55,7 +55,7 @@ import Prelude hiding
 import GHC.TypeLits
 import Data.Proxy
 import Foreign.Ptr (Ptr)
-import Polysemy.System.Handle
+import Polysemy.IO.File.Handle
 
 data File :: Effect where
   FileSize :: File m Integer
