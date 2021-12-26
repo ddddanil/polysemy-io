@@ -51,6 +51,7 @@ common common-options
     , polysemy-plugin
     , profunctors
     , either
+    , network
     -- , singletons
     -- , singletons-th
     -- , singletons-base
@@ -66,6 +67,7 @@ library
     , Polysemy.IO.File
     , Polysemy.IO.File.Handle
     , Polysemy.IO.Network
+    , Polysemy.IO.Network.Socket
   other-modules:
   hs-source-dirs:     lib
   build-depends:
