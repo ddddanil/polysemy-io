@@ -1,0 +1,16 @@
+name: auto-tag
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: sol/haskell-autotag@v1
+        id: autotag
+

@@ -1,0 +1,22 @@
+name: test
+
+on: [push, pull_request]
+
+jobs:
+  check-correctness:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run linter
+        uses: domdere/haskell-lint-action@v1.0.2
+      - name: Run tests
+        uses: sol/run-haskell-tests@v1
+
