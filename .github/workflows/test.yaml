@@ -3,7 +3,16 @@ name: test
 on: [push, pull_request]
 
 jobs:
-  check-correctness:
+  run-linter:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run linter
+        uses: domdere/haskell-lint-action@v1.0.2
+
+  run-tests:
+    needs: run-linter
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -15,8 +24,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Run linter
-        uses: domdere/haskell-lint-action@v1.0.2
       - name: Run tests
         uses: sol/run-haskell-tests@v1
 
