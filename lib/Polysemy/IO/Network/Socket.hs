@@ -3,10 +3,17 @@ module Polysemy.IO.Network.Socket (
   Connection
 -- * Actions
 , getSocket
+-- ** Socket operations
 , connect, bind, listen, accept
--- * Adapters
-, recvInput, sendOutput, sendOutputBatch, recvBuf
+-- ** Closing
+, close, close', gracefulClose, shutdown
+-- ** Opening
+, openSocket
+, runOpenSockets
 -- * Interpreters
+-- ** Inner effects
+, recvInput, sendOutput, sendOutputBatch, recvBuf
+-- ** To IO
 , runWithSocket
 , withSockets
 ) where
@@ -17,6 +24,7 @@ import Polysemy.Final
 import Polysemy.Bundle
 import Polysemy.Input
 import Polysemy.Output
+import Polysemy.IO.Open
 import Data.ByteString
 import qualified Network.Socket as S
 import qualified Network.Socket.ByteString as SB
@@ -55,6 +63,26 @@ accept = do
   s <- getSocket
   liftIO $ S.accept s
 
+close :: Member Connection r => Sem r ()
+close = do
+  s <- getSocket
+  liftIO $ S.close s
+
+close' :: Member Connection r => Sem r ()
+close' = do
+  s <- getSocket
+  liftIO $ S.close' s
+
+gracefulClose :: Member Connection r => Int -> Sem r ()
+gracefulClose t = do
+  s <- getSocket
+  liftIO $ S.gracefulClose s t
+
+shutdown :: Member Connection r => S.ShutdownCmd -> Sem r ()
+shutdown cmd = do
+  s <- getSocket
+  liftIO $ S.shutdown s cmd
+
 recvInput :: Member Connection r => Int -> InterpreterFor (Input ByteString) r
 recvInput size m = do
   s <- getSocket
@@ -89,4 +117,13 @@ withSockets m = withStrategicToFinal $ do
   ins <- getInspectorS
   m' <- runS m
   liftS $ S.withSocketsDo (inspect ins <$> m')
+
+type instance OpenArgs S.Socket = S.AddrInfo
+
+openSocket :: Member (Open S.Socket) r => S.AddrInfo -> Sem r S.Socket
+openSocket = open
+
+runOpenSockets :: Member (Embed IO) r => InterpreterFor (Open S.Socket) r
+runOpenSockets = interpret $ \case
+  Open addr -> embed $ S.socket <$> S.addrFamily <*> S.addrSocketType <*> S.addrProtocol $ addr
 
