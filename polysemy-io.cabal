@@ -70,6 +70,7 @@ library
     , Polysemy.IO.File.Handle
     , Polysemy.IO.Network
     , Polysemy.IO.Network.Socket
+    , Polysemy.IO.Open
   other-modules:
   hs-source-dirs:     lib
   build-depends:
