@@ -35,6 +35,7 @@ common common-options
     , PatternSynonyms
     , ViewPatterns
     , LambdaCase
+    , TupleSections
     , BlockArguments
     , RecordWildCards
     , ScopedTypeVariables
@@ -52,6 +53,7 @@ common common-options
     , profunctors
     , either
     , network
+    , bytestring
     -- , singletons
     -- , singletons-th
     -- , singletons-base

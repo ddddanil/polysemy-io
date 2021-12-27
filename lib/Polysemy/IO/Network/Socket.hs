@@ -4,19 +4,27 @@ module Polysemy.IO.Network.Socket (
 -- * Actions
 , getSocket
 , connect, bind, listen, accept
+-- * Adapters
+, recvInput, sendOutput, sendOutputBatch, recvBuf
 -- * Interpreters
 , runWithSocket
+, withSockets
 ) where
 
 import Prelude
 import Polysemy
+import Polysemy.Final
 import Polysemy.Bundle
 import Polysemy.Input
+import Polysemy.Output
+import Data.ByteString
 import qualified Network.Socket as S
+import qualified Network.Socket.ByteString as SB
+import Foreign (Ptr, Word8)
+import Foreign.Marshal.Array (mallocArray)
 
 type SocketInner = '[Input S.Socket, Embed IO]
-type SocketBundle = Bundle SocketInner
-newtype Connection m a = Socket { unSocket :: SocketBundle m a }
+newtype Connection m a = Socket { unSocket :: Bundle SocketInner m a }
 
 liftE :: forall e r a. (Member e SocketInner, Member Connection r) => Sem (e ': r) a -> Sem r a
 liftE = transform Socket . rewrite injBundle
@@ -47,6 +55,38 @@ accept = do
   s <- getSocket
   liftIO $ S.accept s
 
+recvInput :: Member Connection r => Int -> InterpreterFor (Input ByteString) r
+recvInput size m = do
+  s <- getSocket
+  let recv = liftIO $ SB.recv s size
+  runInputSem recv m
+
+sendOutput :: Member Connection r => InterpreterFor (Output ByteString) r
+sendOutput m = do
+  s <- getSocket
+  let send msg = liftIO $ SB.sendAll s msg
+  runOutputSem send m
+
+sendOutputBatch :: Member Connection r => InterpreterFor (Output ByteString) r
+sendOutputBatch m = do
+  s <- getSocket
+  (msgs, res) <- runOutputList m
+  liftIO $ SB.sendMany s msgs
+  return res
+
+recvBuf :: Member Connection r => Int -> Sem (Input (Ptr Word8, Int) ': r) a -> Sem r a
+recvBuf size m = do
+  a <- liftIO $ mallocArray size
+  s <- getSocket
+  let recv = liftIO $ (a, ) <$> S.recvBuf s a size
+  runInputSem recv m
+
 runWithSocket :: Member (Embed IO) r => S.Socket -> InterpreterFor Connection r
 runWithSocket sock = subsume . runInputConst sock . runBundle . rewrite unSocket
+
+withSockets :: Member (Final IO) r => Sem r a -> Sem r (Maybe a)
+withSockets m = withStrategicToFinal $ do
+  ins <- getInspectorS
+  m' <- runS m
+  liftS $ S.withSocketsDo (inspect ins <$> m')
 
